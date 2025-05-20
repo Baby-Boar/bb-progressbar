@@ -6,10 +6,9 @@ function post(action, data) {
 
 function reset() {
     clearInterval(interval);
-
-    $('#progress-bar-container').css('display', 'none');
+    $('#progress-bar-container').fadeOut(150);
     $('#progress').css('width', '0%');
-    $('#multiplier').css('display', 'none');
+    $('#multiplier').hide();
 }
 
 function end() {
@@ -24,7 +23,7 @@ function progress(multiplier, duration) {
     let progress = 0;
     interval = setInterval(function() {
         if (progress < 100) {
-            $('#progress').stop().animate({width: `${progress}%`}, tick);
+            $('#progress').css('width', `${progress}%`);
             progress = Math.min(100, progress + progressPerTick);
         } else {
             clearInterval(interval);
@@ -34,21 +33,18 @@ function progress(multiplier, duration) {
 }
 
 function start(title, multiplier, duration) {
-    $('#progress-bar-container').css('display', 'inline-block');
+    $('#progress-bar-container').fadeIn(150);
     $('#title').text(title);
     if (multiplier !== 1) {
         const icon = multiplier < 1 ? 'down' : 'up';
-
-        $('#multiplier').css('display', 'flex');
+        $('#multiplier').show();
         $('#multiplier > i')
-            .removeClass('fa-angle-double-down')
-            .removeClass('fa-angle-double-up')
+            .removeClass('fa-angle-double-down fa-angle-double-up')
             .addClass(`fa-angle-double-${icon}`);
         $('#number').html(multiplier.toFixed(2));
     } else {
-        $('#multiplier').css('display', 'none');
+        $('#multiplier').hide();
     }
-
     progress(multiplier, duration);
 }
 

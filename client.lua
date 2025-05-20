@@ -48,44 +48,31 @@ exports("interrupt", interrupt)
 -- please use CreateThread provided by cfx or use event ['taskbar:start']
 --
 function start(duration, title, multiplier, settings)
-    if IsActive() then
-        return false
-    end
-    -- Server-specific event
+    if IsActive then return false end
     TriggerServerEvent('v-interaction:SetInteractionBlocked', true)
-    
     Finished = false
     IsActive = true
-
     SendNUIMessage({
         type = "StartTimer",
         duration = duration,
         multiplier = multiplier,
         title = title
     })
-
     local maxDistance = settings.maxDistance or false
     local startCoords = GetEntityCoords(PlayerPedId())
-
-    -- Background process that listens if progress should be interrupted
-    while isActive() do
+    while IsActive do
         Citizen.Wait(0)
-        local distance = not maxDistance or GetDistanceBetweenCoords(
-            GetEntityCoords(PlayerPedId()),
-            startCoords,
-            true
-        )
-        if (maxDistance and distance > maxDistance) then
-            ESX.ShowNotification("You've gone too far!")
-            interrupt()
-        end
-        if settings.perTickCb then
-            if not settings.perTickCb() then
+        if maxDistance then
+            local distance = #(GetEntityCoords(PlayerPedId()) - startCoords)
+            if distance > maxDistance then
+                ESX.ShowNotification("You've gone too far!")
                 interrupt()
             end
         end
+        if settings.perTickCb and not settings.perTickCb() then
+            interrupt()
+        end
     end
-
     return Finished
 end
 exports("start", start)
